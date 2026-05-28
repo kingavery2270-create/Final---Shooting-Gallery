@@ -146,6 +146,25 @@ def setscoreboard():
             yertle.goto(-110,-240)
             yertle.end_fill()
 
+def endscreen():
+    end = Turtle()
+    end.ht()
+    end.speed(0)
+    end.color('light gray')
+    end.goto(-85,40)
+    end.begin_fill()
+    end.goto(85,40)
+    end.goto(85,-40)
+    end.goto(-85,-40)
+    end.goto(-85,40)
+    end.goto(-83,-37)
+    end.end_fill()
+    end.color('black')
+    end.write('GAME OVER',font=['Arial',20,'normal'])
+    end.color('light gray')
+    end.penup()
+
+
 class Score(Turtle):
     def __init__(self):
         super().__init__()
@@ -156,62 +175,66 @@ class Score(Turtle):
         self.begin_fill()
             
     def printscore(self,player,x):
+        self.pu()
         self.goto(x,-240)
         self.color('black')
-        self.pu()
         self.pd()
         self.write(player.score,font=['Arial',20,'normal'])
 
 
 def update():
-    global start, blocks, bullet, block
-    if time.time() - start > 2:
-        start = time.time()
-        screen.tracer(0)
-        for block in blocks:
-            if block.ycor() < -240:
-                blocks.clear()
-                
-                
-            block.fall()
+    global start, blocks, bullet, block, game
+    if game:
+        if time.time() - start > 2:
+            start = time.time()
+            screen.tracer(0)
+            for block in blocks:
+                block.fall()
+                if block.ycor() < -160:
+                    blocks.clear()
+                    p1.ht()
+                    p2.ht()
+                    game= False
+                    
 
-        for x in range(-80,101,40):
-            tipe = random.randint(1,15)
-            if tipe == 1:
-                blocks.append(Block(x,220,"green",'bomb'))
-            elif len(blocks)%3==0 and tipe != 1:
-                blocks.append(Block(x,220,"light gray",'normal'))
-            elif len(blocks)%3==1 and tipe != 1:
-                blocks.append(Block(x,220,"gray",'normal'))
-            else:
-                blocks.append(Block(x,220,"dark gray",'normal'))
-        screen.tracer(1)
-    p1score.printscore(p1,-80)
-    p2score.printscore(p2,80)
-    for bullet in p2.bullets:
-        bullet.move()
-        for block in blocks:
-            p2currentscore = p2.score
-            if block.distance(bullet) <= 35:
-                bullet.die()
-                block.health -= 1
-                block.damage(p2)
-            if p2.score > p2currentscore:
-                p2score.clear()
-                p2score.printscore(p1,-80)
-        
-    for bullet in p1.bullets:
-        bullet.move()
-        for block in blocks:
-            p1currentscore = p1.score
-            if block.distance(bullet) <= 35:
-                bullet.die()
-                block.health -= 1
-                block.damage(p1)
-            if p1.score > p1currentscore:
-                p1score.clear()
-                p1score.printscore(p1,-80)
-    
+            for x in range(-80,101,40):
+                tipe = random.randint(1,15)
+                if tipe == 1:
+                    blocks.append(Block(x,220,"green",'bomb'))
+                elif len(blocks)%3==0 and tipe != 1:
+                    blocks.append(Block(x,220,"light gray",'normal'))
+                elif len(blocks)%3==1 and tipe != 1:
+                    blocks.append(Block(x,220,"gray",'normal'))
+                else:
+                    blocks.append(Block(x,220,"dark gray",'normal'))
+            screen.tracer(1)
+        p1score.printscore(p1,-80)
+        p2score.printscore(p2,80)
+        for bullet in p2.bullets:
+            bullet.move()
+            for block in blocks:
+                p2currentscore = p2.score
+                if block.distance(bullet) <= 35:
+                    bullet.die()
+                    block.health -= 1
+                    block.damage(p2)
+                if p2.score > p2currentscore:
+                    p2score.clear()
+                    p2score.printscore(p1,-80)
+            
+        for bullet in p1.bullets:
+            bullet.move()
+            for block in blocks:
+                p1currentscore = p1.score
+                if block.distance(bullet) <= 35:
+                    bullet.die()
+                    block.health -= 1
+                    block.damage(p1)
+                if p1.score > p1currentscore:
+                    p1score.clear()
+                    p1score.printscore(p1,-80)
+    else:
+        endscreen()
 
     screen.ontimer(update,80)
 ### PROGRAM ###
@@ -226,7 +249,7 @@ p1 = Player(-45,-180,screen,'red','d','a','f')
 p2 = Player(45,-180,screen,'blue','l','j',';')
 p1score = Score()
 p2score = Score()
-
+game = True
 
 
 screen.onkey(update,'space')
@@ -236,9 +259,9 @@ for y in range(140,225,40):
         tipe = random.randint(1,15)
         if tipe == 1:
             blocks.append(Block(x,220,"green",'bomb'))
-        elif len(blocks)%3==0 and tipe != 1:
+        elif len(blocks)%3==0 and tipe > 1:
             blocks.append(Block(x,220,"light gray",'normal'))
-        elif len(blocks)%3==1 and tipe != 1:
+        elif len(blocks)%3==1 and tipe > 1:
             blocks.append(Block(x,220,"gray",'normal'))
         else:
             blocks.append(Block(x,220,"dark gray",'normal'))
